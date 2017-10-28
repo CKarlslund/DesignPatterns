@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bowling.Models\Bowling.Models.csproj" />
+    <ProjectReference Include="..\CorneliasBowlinghall.EFDatabase\CorneliasBowlinghall.EFDatabase.csproj" />
     <ProjectReference Include="..\CorneliasBowlinghall.Interfaces\CorneliasBowlinghall.Interfaces.csproj" />
   </ItemGroup>
 

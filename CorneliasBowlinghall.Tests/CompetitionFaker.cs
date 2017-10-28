@@ -1,4 +1,6 @@
-﻿using Bowling.Models;
+﻿using AccountabilityLib;
+using Bowling.Models;
+using CorneliasBowlinghall.EFDatabase;
 using CorneliasBowlinghall.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,10 +12,21 @@ namespace CorneliasBowlinghall.Tests
     {
         public static List<Competition> Competitions { get; set; }
 
-        public static List<Competition> GenerateFakeCompetitions(IBowlingRepository bowlingRepository)
+        public static void GenerateFakeCompetitions(IBowlingRepository bowlingRepository)
         {
             //TODO add competitions
-            return new List<Competition>();
+
+            var competition1Id = Guid.NewGuid();
+            bowlingRepository.CreateCompetition("FirstCompetition", competition1Id);
+
+            var matchDate = new DateTime(2017,12,24,05,00,00);
+            var matchPlayers = new List<Party>();
+
+            //bowlingRepository.CreateMatch(matchPlayers, 1);
+
+            var competition2Id = Guid.NewGuid();
+            bowlingRepository.CreateCompetition("SecondCompetition", competition2Id);
+
         }
     }
 

@@ -6,6 +6,8 @@ using Bowling.Models;
 using CorneliasBowlinghall.System;
 using CorneliasBowlinghall.Interfaces;
 using CorneliasBowlinghall.Tests;
+using System.Linq;
+using System.Data.Entity;
 
 namespace CorneliasBowlingHall.IntegrationTests
 {
@@ -20,13 +22,12 @@ namespace CorneliasBowlingHall.IntegrationTests
             optionBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=CorneliasBowlinghall;Trusted_Connection=True;");
             _context = new ApplicationDbContext(optionBuilder.Options);
 
-            var competitions = CompetitionFaker.GenerateFakeCompetitions(_bowlingRepository);
-            _context.AddRa
+            _bowlingRepository = new BowlingRepository(_context);
 
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
 
-            _bowlingRepository = new BowlingRepository(_context);
+            CompetitionFaker.GenerateFakeCompetitions(_bowlingRepository);       
         }
 
         [Fact]
@@ -34,31 +35,64 @@ namespace CorneliasBowlingHall.IntegrationTests
         {
             var system = new BowlingSystem(_bowlingRepository);
 
-            system.CreateCompetition("Hello", Guid.NewGuid());
+            var newGuid = Guid.NewGuid();
 
-            var competition = system.FindCompetition("hello");
-
-            var match = new Match() { };
-
-            competition.Matches.Add(match);
+            var competition = new Competition()
+            {
+                Id = newGuid,
+                Name = "Hello"
+            };
 
             system.SaveCompetition(competition);
 
+            var foundCompetition = _context.Competitions.FirstOrDefault(x => x.Id == newGuid);
 
+            Assert.Equal(foundCompetition.Id, newGuid);
+        }
 
-            Assert.Equal("Hello", "Hello");
+        [Fact]
+        public void Can_Update_Competition()
+        {
+            var system = new BowlingSystem(_bowlingRepository);
+
+            var competition = _context.Competitions.FirstOrDefault(c => c.Name == "FirstCompetition");
+
+            competition.Name = "ModifiedCompetition";
+
+            system.SaveCompetition(competition);
+
+            var foundCompetition = _context.Competitions.FirstOrDefault(c => c.Id == competition.Id);
+
+            Assert.NotNull(competition);
+            Assert.Equal("ModifiedCompetition", foundCompetition.Name);
         }
 
         [Fact]
         public void Can_Create_Competition()
         {
-            
+            var system = new BowlingSystem(_bowlingRepository);
+
+            var id = Guid.NewGuid();
+            system.CreateCompetition("NewCompetition", id);
+
+            bool competitionExists = _context.Competitions.ToList().Exists(c => c.Id == id);
+
+            Assert.True(competitionExists);
         }
 
         [Fact]
         public void Can_Search_Competition()
         {
-            
+            var system = new BowlingSystem(_bowlingRepository);
+
+            var competitionToSearchFor = _context.Competitions
+                                                .FirstOrDefault(c => c.Name == "FirstCompetition");
+
+            var competitionFoundByName = system.FindCompetitions(competitionToSearchFor.Name).FirstOrDefault();
+            var competitionFoundById = system.FindCompetitions(competitionToSearchFor.Id.ToString()).FirstOrDefault();
+
+            Assert.Equal(competitionToSearchFor.Name, competitionFoundByName.Name);
+            Assert.Equal(competitionToSearchFor.Id, competitionFoundById.Id);
         }
     }
 }

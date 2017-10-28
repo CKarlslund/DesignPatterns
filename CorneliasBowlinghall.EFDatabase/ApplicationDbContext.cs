@@ -10,10 +10,15 @@ namespace CorneliasBowlinghall.EFDatabase
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
+
         public DbSet<Competition> Competitions { get; set; }
         public DbSet<Match> Matches { get; set; }
-        public DbSet<Round> Rounds { get; set; }
         public DbSet<Series> Series { get; set; }
         public DbSet<Party> Parties { get; set; }
+        public DbSet<Lane> Lanes { get; set; }
     }
 }

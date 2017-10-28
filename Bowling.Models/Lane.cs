@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Bowling.Models
 {
@@ -7,7 +8,6 @@ namespace Bowling.Models
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public int LaneBookingId { get; set; }
-        public LaneBooking LaneBooking { get; set; }
+        public List<Match> Matches { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AccountabilityLib;
 
 namespace Bowling.Models
@@ -12,22 +13,31 @@ namespace Bowling.Models
         {
             get
             {
-                var winningParty = new Party()
+                var players = Series.Select(s => s.Player).ToList();
+
+                var highScores = new Dictionary<Party, int?>();
+                foreach (var player in players)
                 {
-                    Name = "Agneta Vinnare"
-                };
-                //Summera serie 1 för rundor
-                //Summera serie 2 för rundor
-                return winningParty;
+                    var highScore = Series.Where(s => s.Player == player).Sum(p => p.Score);
+                    highScores.Add(player, highScore);
+                }
+
+                var winner = highScores.FirstOrDefault(x => x.Value == highScores.Values.Max()).Key;
+
+                //var winner = new Party();
+
+                return winner;
             }
         }    
         
         public List<Series> Series { get; set; }
 
         public int CompetitionId { get; set; }
-        public Competition Competition { get; set; }       
+        public Competition Competition { get; set; }
 
-        public int LaneBookingId { get; set; }
-        public Lane LaneBooking { get; set; }
+        public int LaneId { get; set; }
+        public Lane Lane { get; set; }
+
+        public int MatchNo { get; set; }
     }
 }

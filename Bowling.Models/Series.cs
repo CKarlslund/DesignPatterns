@@ -6,7 +6,12 @@ namespace Bowling.Models
     {
         public int Id { get; set; }
         public int SeqNo { get; set; }
-        public int Score { get; set; }
+        public int? Score { get; set; }
+
+        public int PlayerId { get; set; }
         public Party Player { get; set; }
+
+        public int MatchId { get; set; }
+        public Match Match { get; set; }
     }
 }
