@@ -6,24 +6,34 @@ using CorneliasBowlinghall.Interfaces;
 using Bowling.Models;
 using AccountabilityLib;
 using CorneliasBowlinghall.EFDatabase;
+using CorneliasBowlinghall.System;
 
 namespace CorneliasBowlinghall.Tests
 {
     class MemoryBowlingRepository : IBowlingRepository
     {
         private List<Competition> _competitions;
+        private List<Lane> _lanes;
+        private List<Match> _matches;
+        private List<Party> _parties;
 
         public MemoryBowlingRepository()
         {
             _competitions = new List<Competition>();
+            _lanes = new List<Lane>();
+            _matches = new List<Match>();
+            _parties = new List<Party>();
         }
 
-        public void CreateCompetition(string competitionName, Guid competitionId)
+        public void CreateCompetition(string competitionName, Guid competitionId, DateTime startDate, DateTime endDate)
         {
             var competition = new Competition()
             {
                 Id = competitionId,
-                Name = competitionName
+                Name = competitionName,
+                Matches = new List<Match>(),
+                StartDate = startDate,
+                EndDate = endDate
             };
 
             SaveCompetition(competition);
@@ -43,7 +53,6 @@ namespace CorneliasBowlinghall.Tests
 
         public List<Competition> FindCompetitions(string searchTerm)
         {
-            //TODO add
             var results = _competitions.Where(c => 
                                         c.Id.ToString().Equals(searchTerm) ||
                                         c.Name.Equals(searchTerm)
@@ -54,42 +63,61 @@ namespace CorneliasBowlinghall.Tests
 
         public void CreateLane(string name)
         {
-            //TODO add
+            var laneNo = _lanes.Count() + 1;
 
+            var lane = BowlingFactory.CreateLane(name, laneNo);
+            _lanes.Add(lane);
         }
 
         public void CreateParty(string name, string legalId)
         {
-            //TODO add
+            var party = BowlingFactory.CreateParty(name, legalId);
+            _parties.Add(party);
         }
 
-        public void FindParty(string searchTerm)
+        public List<Party> FindParty(string searchTerm)
         {
-            //TODO add}
-        }
+            var lowerInvariantSearchTerm = searchTerm.ToLowerInvariant();
 
-        public void CreateSeries(int points, int seqNumber, Party Player)
-        {
-            //TODO add
-        }
-
-        public void CreateMatch()
-        {
-            //TODO add
-            throw new NotImplementedException();
+            return _parties.Where(p =>
+                p.Name.ToLowerInvariant().Contains(lowerInvariantSearchTerm) ||
+                p.LegalId.Contains(lowerInvariantSearchTerm)).ToList();
         }
 
         public void CreateMatch(Competition competition, List<Party> players, int laneId)
         {
-            throw new NotImplementedException();
+            var lane = _lanes.FirstOrDefault(l => l.Id == laneId);
+
+            var matchNo = competition.Matches.Count + 1;
+
+            var match = BowlingFactory.CreateMatch(competition, players, lane, matchNo);
+            _matches.Add(match);
         }
 
-        public Match FindMatch(Guid competitionId, int matchNo)
+        public List<Match> FindMatch(Guid competitionId, int matchNo)
         {
-            throw new NotImplementedException();
+            return _matches.Where(m => m.Competition.Id.Equals(competitionId) && m.MatchNo == matchNo).ToList();
         }
 
         public void AddScore(Match match, Party player, int score)
+        {
+            var availablePlayerSeries = match.Series.Where(s =>
+                s.Player == player &&
+                s.Score == null 
+                ).ToList();
+
+            if (availablePlayerSeries.Count > 0)
+            {
+                var seriesToUpdate = availablePlayerSeries.FirstOrDefault();
+                seriesToUpdate.Score = score;
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot add more than three scores per player and match");
+            }
+        }
+
+        public Party GetWinnerOfTheYear(int year)
         {
             throw new NotImplementedException();
         }

@@ -9,6 +9,7 @@ using CorneliasBowlinghall.System;
 using System.Linq;
 using System.Data.Entity.Migrations;
 
+
 namespace CorneliasBowlinghall.EFDatabase
 {
     public class BowlingRepository : IBowlingRepository
@@ -20,9 +21,9 @@ namespace CorneliasBowlinghall.EFDatabase
             _context = context;
         }
 
-        public void CreateCompetition(string competitionName, Guid competitionId)
+        public void CreateCompetition(string competitionName, Guid competitionId, DateTime startDate, DateTime endDate)
         {
-            var competition = BowlingFactory.CreateCompetition(competitionId, competitionName);
+            var competition = BowlingFactory.CreateCompetition(competitionId, competitionName, startDate, endDate);
 
             _context.Competitions.Add(competition);
             _context.SaveChanges();
@@ -62,45 +63,45 @@ namespace CorneliasBowlinghall.EFDatabase
             
             var match = BowlingFactory.CreateMatch(competition, players, lane, matchNo);
             _context.Add(match);
+            _context.SaveChanges();
         }
 
-        public Match FindMatch(Guid competitionId, int matchNo)
+        public List<Match> FindMatch(Guid competitionId, int matchNo)
         {
-            return _context.Matches.FirstOrDefault(m => m.Competition.Id.Equals(competitionId) && m.MatchNo == matchNo);
-        }
-
-        public void CreateSeries(int points, int seqNumber, Party Player)
-        {
-            //TODO ADD
-            throw new NotImplementedException();
+            return _context.Matches.Where(m => m.Competition.Id.Equals(competitionId) && m.MatchNo == matchNo).ToList();           
         }
 
         public void CreateLane(string name)
         {
-            //TODO ADD
-            throw new NotImplementedException();
+            var laneNo = _context.Lanes.Count() + 1;
+
+            var lane = BowlingFactory.CreateLane(name, laneNo);
+            _context.Add(lane);
+            _context.SaveChanges();
         }
 
         public void CreateParty(string name, string legalId)
         {
-            //TODO ADD
-            throw new NotImplementedException();
+            var party = BowlingFactory.CreateParty(name, legalId);
+            _context.Add(party);
+            _context.SaveChanges();
         }
 
-        public void FindParty(string searchTerm)
+        public List<Party> FindParty(string searchTerm)
         {
-            //TODO ADD
-            throw new NotImplementedException();
+            var lowerInvariantSearchTerm = searchTerm.ToLowerInvariant();
+
+            return _context.Parties.Where(p => 
+                                                p.Name.ToLowerInvariant().Contains(lowerInvariantSearchTerm) ||
+                                                p.LegalId.Contains(lowerInvariantSearchTerm)).ToList();
         }
 
         public void AddScore(Match match, Party player, int score)
         {
-            //var matchToUpdate = _context.Matches.FirstOrDefault(m => m.Id == match.Id);
-
-            var availablePlayerSeries = _context.Series.Where(s => 
+            var availablePlayerSeries = match.Series.Where(s => 
                                                         s.Player == player && 
-                                                        s.Score == null &&
-                                                        s.MatchId == match.Id).ToList();
+                                                        s.Score == null 
+                                                        ).ToList();
 
             if (availablePlayerSeries.Count > 0)
             {
@@ -113,6 +114,33 @@ namespace CorneliasBowlinghall.EFDatabase
             {
                 throw new InvalidOperationException("Cannot add more than three scores per player and match");
             }
+        }
+
+        public Party GetWinnerOfTheYear(int year)
+        {
+            var competitions = _context.Competitions.Where(c => c.StartDate.Year == year);
+
+            var players = new Dictionary<Party, int>();
+
+            foreach (var competition in competitions)
+            {
+                var winners = competition.Matches.Select(m => m.Winner);
+               
+                foreach (var winner in winners)
+                {
+                    var existingPlayer = players.FirstOrDefault(p => p.Key == winner).Key;
+
+                    if (existingPlayer == null)
+                    {
+                        players.Add(winner,1);
+                    }
+                    else
+                    {
+                        players[existingPlayer] += 1;
+                    }
+                }
+            }
+            return players.Keys.Max();
         }
     }
 }

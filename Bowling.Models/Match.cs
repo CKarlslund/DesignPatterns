@@ -13,7 +13,7 @@ namespace Bowling.Models
         {
             get
             {
-                var players = Series.Select(s => s.Player).ToList();
+                List<Party> players = Series.Select(s => s.Player).Distinct().ToList();
 
                 var highScores = new Dictionary<Party, int?>();
                 foreach (var player in players)
@@ -24,15 +24,13 @@ namespace Bowling.Models
 
                 var winner = highScores.FirstOrDefault(x => x.Value == highScores.Values.Max()).Key;
 
-                //var winner = new Party();
-
                 return winner;
             }
         }    
         
         public List<Series> Series { get; set; }
 
-        public int CompetitionId { get; set; }
+        public Guid CompetitionId { get; set; }
         public Competition Competition { get; set; }
 
         public int LaneId { get; set; }

@@ -7,7 +7,7 @@ namespace CorneliasBowlinghall.Interfaces
 {
     public interface IBowlingRepository
     {
-        void CreateCompetition(string competitionName, Guid competitionId);
+        void CreateCompetition(string competitionName, Guid competitionId, DateTime competition1StartDate, DateTime competition1EndDate);
 
         void SaveCompetition(Competition competition);
 
@@ -15,16 +15,16 @@ namespace CorneliasBowlinghall.Interfaces
 
         void CreateMatch(Competition competition, List<Party> players, int laneId);
 
-        Match FindMatch(Guid competitionId, int matchNo);
-
-        void CreateSeries(int points, int seqNumber, Party Player);
+        List<Match> FindMatch(Guid competitionId, int matchNo);
 
         void CreateLane(string name);
 
         void CreateParty(string name, string legalId);
 
-        void FindParty(string searchTerm);
+        List<Party> FindParty(string searchTerm);
 
         void AddScore(Match match, Party player, int score);
+
+        Party GetWinnerOfTheYear(int year);
     }
 }

@@ -8,17 +8,22 @@ namespace CorneliasBowlinghall.System
 {
     public class BowlingFactory
     {
-        public static Competition CreateCompetition(Guid competitionId, string competitionName)
+        public static Competition CreateCompetition(Guid competitionId, 
+                                                    string competitionName, 
+                                                    DateTime startDate, 
+                                                    DateTime endDate)
         {
             return new Competition()
             {
                 Id = competitionId,
                 Name = competitionName,
-                Matches = new List<Match>()
+                Matches = new List<Match>(),
+                StartDate = startDate,
+                EndDate = endDate
             };
         }
 
-        public static object CreateMatch(Competition competition, List<Party> matchPlayers, Lane lane, int matchNo)
+        public static Match CreateMatch(Competition competition, List<Party> matchPlayers, Lane lane, int matchNo)
         {
             var series = new List<Series>();
 
@@ -42,6 +47,24 @@ namespace CorneliasBowlinghall.System
                 Series = series,
                 Lane = lane,
                 MatchNo = matchNo
+            };
+        }
+
+        public static Lane CreateLane(string name, int lanteNo)
+        {
+            return new Lane()
+            {
+                Name = name,
+                LaneNo = lanteNo
+            };
+        }
+
+        public static Party CreateParty(string name, string legalId)
+        {
+            return new Party()
+            {
+                Name = name,
+                LegalId = legalId,
             };
         }
     }

@@ -18,28 +18,17 @@ namespace CorneliasBowlinghall.System
 
         public Party GetWinnerOfTheYear(int year)
         {
-            //TODO Winner
-            //get all matches via repository
-            //calculate
-            //return party
-            return new Party();
+            return _bowlingRepository.GetWinnerOfTheYear(year);
         }
 
-        public List<Party> GetMatchWinners()
+        public void CreateParty(string name, string legalId)
         {
-            //TODO add
-            return new List<Party>();
+            _bowlingRepository.CreateParty(name, legalId);
         }
 
-        public void CreateParty()
+        public List<Party> FindParty(string searchTerm)
         {
-            //TODO CreateParty
-        }
-
-        public Party FindParty(string searchTerm)
-        {
-            //TODO findParty
-            return new Party();
+            return _bowlingRepository.FindParty(searchTerm);
         }
 
         public List<Competition> FindCompetitions(string searchTerm)
@@ -57,12 +46,12 @@ namespace CorneliasBowlinghall.System
             _bowlingRepository.SaveCompetition(competition);
         }
 
-        public void CreateCompetition(string competitionName, Guid competitionId)
+        public void CreateCompetition(string competitionName, Guid competitionId, DateTime startDate, DateTime endDate)
         {
-            _bowlingRepository.CreateCompetition(competitionName, competitionId);
+            _bowlingRepository.CreateCompetition(competitionName, competitionId, startDate, endDate);
         }
 
-        public Match FindMatch(Guid competitionId, int matchNo)
+        public List<Match> FindMatch(Guid competitionId, int matchNo)
         {
             return _bowlingRepository.FindMatch(competitionId, matchNo);
         }

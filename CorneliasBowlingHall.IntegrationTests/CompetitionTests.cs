@@ -73,7 +73,10 @@ namespace CorneliasBowlingHall.IntegrationTests
             var system = new BowlingSystem(_bowlingRepository);
 
             var id = Guid.NewGuid();
-            system.CreateCompetition("NewCompetition", id);
+            var startDate = new DateTime(2017,10,04);
+            var endDate = new DateTime(2017,11,07);
+
+            system.CreateCompetition("NewCompetition", id, startDate, endDate);
 
             bool competitionExists = _context.Competitions.ToList().Exists(c => c.Id == id);
 
