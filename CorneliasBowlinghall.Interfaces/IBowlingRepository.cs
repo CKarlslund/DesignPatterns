@@ -13,9 +13,9 @@ namespace CorneliasBowlinghall.Interfaces
 
         List<Competition> FindCompetitions(string searchTerm);
 
-        void CreateMatch(Competition competition, List<Party> players, int laneId);
+        void CreateMatch(Competition competition, List<Party> players, int laneNumber);
 
-        List<Match> FindMatch(Guid competitionId, int matchNo);
+        Match FindMatch(Competition competition, int matchNo);
 
         void CreateLane(string name);
 
@@ -25,6 +25,6 @@ namespace CorneliasBowlinghall.Interfaces
 
         void AddScore(Match match, Party player, int score);
 
-        Party GetWinnerOfTheYear(int year);
+        List<Party> GetWinnersOfTheYear(int year);
     }
 }

@@ -10,8 +10,5 @@ namespace Bowling.Models
 
         public int PlayerId { get; set; }
         public Party Player { get; set; }
-
-        public int MatchId { get; set; }
-        public Match Match { get; set; }
     }
 }

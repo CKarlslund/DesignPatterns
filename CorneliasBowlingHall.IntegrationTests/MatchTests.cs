@@ -1,22 +1,23 @@
-﻿using System;
+﻿using CorneliasBowlinghall.EFDatabase;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using CorneliasBowlinghall.Tests;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using CorneliasBowlinghall.EFDatabase;
 using CorneliasBowlinghall.System;
-using CorneliasBowlinghall.Interfaces;
+using AccountabilityLib;
 using System.Linq;
+using CorneliasBowlinghall.Interfaces;
 
 namespace CorneliasBowlingHall.IntegrationTests
 {
-    public class PartyTests
+    public class MatchTests
     {
         private ApplicationDbContext _context;
         private IBowlingRepository _bowlingRepository;
 
-        public PartyTests()
+        public MatchTests()
         {
             var randomDatabaseName = Guid.NewGuid();
 
@@ -33,25 +34,31 @@ namespace CorneliasBowlingHall.IntegrationTests
         }
 
         [Fact]
-        public void Can_Create_Party()
+        public void Match_Has_Correct_Winner()
         {
             var system = new BowlingSystem(_bowlingRepository);
 
-            system.CreateParty("Bertil Sandrasson", "451007-7835");
+            var competition = system.FindCompetitions("FirstCompetition").FirstOrDefault();
 
-            var foundParty = _context.Parties.Where(p => p.Name.Contains("Bertil Sandrasson")).FirstOrDefault();
+            var player1 = system.FindParty("winner2017").FirstOrDefault();
+            var player2 = system.FindParty("winner2018").FirstOrDefault();
 
-            Assert.Equal("Bertil Sandrasson", foundParty.Name);
-        }
+            var players = new List<Party> { player1, player2 };
 
-        [Fact]
-        public void Can_Search_Party()
-        {
-            var system = new BowlingSystem(_bowlingRepository);
+            system.CreateMatch(competition, players, 2);
+            var match = system.FindMatch(competition, 2);
 
-            var party = system.FindParty("winner2017").FirstOrDefault();
+            system.AddScore(match, player1, 100);
+            system.AddScore(match, player1, 100);
+            system.AddScore(match, player1, 100);
 
-            Assert.Contains("winner2017", party.Name);
+            system.AddScore(match, player2, 15);
+            system.AddScore(match, player2, 15);
+            system.AddScore(match, player2, 15);
+
+            var matchWinner = match.Winner;
+
+            Assert.Equal(player1, matchWinner);
         }
     }
 }

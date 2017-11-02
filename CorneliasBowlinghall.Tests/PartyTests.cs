@@ -16,10 +16,6 @@ namespace CorneliasBowlinghall.Tests
             _bowlingRepository = new MemoryBowlingRepository();
         }
 
-        [Fact]
-        public void Find_Party_Works_Correctly()
-        {
-            
-        }
+
     }
 }

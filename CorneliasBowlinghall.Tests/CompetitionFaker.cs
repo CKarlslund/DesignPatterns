@@ -21,21 +21,21 @@ namespace CorneliasBowlinghall.Tests
             bowlingRepository.CreateLane("Tulpanen");
 
             //Create players
-            bowlingRepository.CreateParty("Agneta Räserbajs", "790522-5878");
-            bowlingRepository.CreateParty("Ahmed Ostbåge", "601111-2415");
+            bowlingRepository.CreateParty("winner2017", "790522-5878");
+            bowlingRepository.CreateParty("winner2018", "601111-2415");
             bowlingRepository.CreateParty("Kung Babar", "601111-2415");
             bowlingRepository.CreateParty("Barbro Messmör", "601111-2415");
             bowlingRepository.CreateParty("Ceasar Sallad", "601111-2415");
             bowlingRepository.CreateParty("Carbonara Ciabatta", "601111-2415");
 
-            var player1 = bowlingRepository.FindParty("Agneta").FirstOrDefault();
-            var player2 = bowlingRepository.FindParty("Ahmed").FirstOrDefault();
+            var winner2017 = bowlingRepository.FindParty("winner2017").FirstOrDefault();
+            var winner2018 = bowlingRepository.FindParty("winner2018").FirstOrDefault();
             var player3 = bowlingRepository.FindParty("Babar").FirstOrDefault();
             var player4 = bowlingRepository.FindParty("Barbro").FirstOrDefault();
             var player5 = bowlingRepository.FindParty("Ceasar").FirstOrDefault();
             var player6 = bowlingRepository.FindParty("Carbonara").FirstOrDefault();
 
-            var players = new List<Party>{ player1, player2 };
+            var players = new List<Party>{ winner2017, winner2018 };
 
             //Create competition
             var competition1Id = Guid.NewGuid();
@@ -46,18 +46,17 @@ namespace CorneliasBowlinghall.Tests
 
             var firstCompetition = bowlingRepository.FindCompetitions("FirstCompetition").FirstOrDefault();
 
-            //Match for first competition
             bowlingRepository.CreateMatch(firstCompetition, players, 1);
 
-            var match = bowlingRepository.FindMatch(firstCompetition.Id, 1).FirstOrDefault();
+            var match = bowlingRepository.FindMatch(firstCompetition, 1);
 
-            bowlingRepository.AddScore(match, player1, 10);
-            bowlingRepository.AddScore(match, player1, 10);
-            bowlingRepository.AddScore(match, player1, 10);
+            bowlingRepository.AddScore(match, winner2017, 100);
+            bowlingRepository.AddScore(match, winner2017, 100);
+            bowlingRepository.AddScore(match, winner2017, 100);
 
-            bowlingRepository.AddScore(match, player2, 15);
-            bowlingRepository.AddScore(match, player2, 15);
-            bowlingRepository.AddScore(match, player2, 15);
+            bowlingRepository.AddScore(match, winner2018, 15);
+            bowlingRepository.AddScore(match, winner2018, 15);
+            bowlingRepository.AddScore(match, winner2018, 15);
 
             //Second competition
             var competition2Id = Guid.NewGuid();
@@ -68,19 +67,19 @@ namespace CorneliasBowlinghall.Tests
 
             var secondCompetition = bowlingRepository.FindCompetitions("SecondCompetition").FirstOrDefault();
 
-            var players2 = new List<Party>{player1, player3};
-            var players3 = new List<Party>{player4, player5,player1};
+            var players2 = new List<Party> { winner2017, player3 };
+            var players3 = new List<Party> { player4, player5, winner2018 };
 
             //Match for second competition
             bowlingRepository.CreateMatch(secondCompetition, players2, 1);
             bowlingRepository.CreateMatch(secondCompetition, players3, 2);
 
-            var match2 = bowlingRepository.FindMatch(secondCompetition.Id, 1).FirstOrDefault();
-            var match3 = bowlingRepository.FindMatch(secondCompetition.Id, 2).FirstOrDefault();
+            var match2 = bowlingRepository.FindMatch(secondCompetition, 1);
+            var match3 = bowlingRepository.FindMatch(secondCompetition, 2);
 
-            bowlingRepository.AddScore(match2, player1, 21);
-            bowlingRepository.AddScore(match2, player1, 22);
-            bowlingRepository.AddScore(match2, player1, 23);
+            bowlingRepository.AddScore(match2, winner2017, 21);
+            bowlingRepository.AddScore(match2, winner2017, 22);
+            bowlingRepository.AddScore(match2, winner2017, 23);
 
             bowlingRepository.AddScore(match2, player3, 24);
             bowlingRepository.AddScore(match2, player3, 25);
@@ -90,13 +89,13 @@ namespace CorneliasBowlinghall.Tests
             bowlingRepository.AddScore(match3, player4, 32);
             bowlingRepository.AddScore(match3, player4, 33);
 
-            //bowlingRepository.AddScore(match3, player5, 34);
-            //bowlingRepository.AddScore(match3, player5, 35);
-            //bowlingRepository.AddScore(match3, player5, 36);
+            bowlingRepository.AddScore(match3, player5, 34);
+            bowlingRepository.AddScore(match3, player5, 35);
+            bowlingRepository.AddScore(match3, player5, 36);
 
-            //bowlingRepository.AddScore(match3, player1, 10);
-            //bowlingRepository.AddScore(match3, player1, 10);
-            //bowlingRepository.AddScore(match3, player1, 5);
+            bowlingRepository.AddScore(match3, winner2018, 100);
+            bowlingRepository.AddScore(match3, winner2018, 100);
+            bowlingRepository.AddScore(match3, winner2018, 50);
 
             //Third Competition
             var competition3Id = Guid.NewGuid();
@@ -107,19 +106,20 @@ namespace CorneliasBowlinghall.Tests
 
             var thirdCompetition = bowlingRepository.FindCompetitions("ThirdCompetition").FirstOrDefault();
 
-            var players4 = new List<Party>{player2,player4};
+            var players4 = new List<Party> { winner2018, player4 };
+
             //Match for third competition
-            bowlingRepository.CreateMatch(thirdCompetition, players, 1);
+            bowlingRepository.CreateMatch(thirdCompetition, players4, 1);
 
-            var match4 = bowlingRepository.FindMatch(secondCompetition.Id, 1).FirstOrDefault();
+            var match4 = bowlingRepository.FindMatch(thirdCompetition, 1);
 
-            //bowlingRepository.AddScore(match4, player2, 21);
-            //bowlingRepository.AddScore(match4, player2, 22);
-            //bowlingRepository.AddScore(match4, player2, 23);
+            bowlingRepository.AddScore(match4, winner2018, 21);
+            bowlingRepository.AddScore(match4, winner2018, 22);
+            bowlingRepository.AddScore(match4, winner2018, 23);
 
-            //bowlingRepository.AddScore(match4, player4, 10);
-            //bowlingRepository.AddScore(match4, player4, 11);
-            //bowlingRepository.AddScore(match4, player4, 12);
+            bowlingRepository.AddScore(match4, player4, 10);
+            bowlingRepository.AddScore(match4, player4, 11);
+            bowlingRepository.AddScore(match4, player4, 12);
 
         }
     }

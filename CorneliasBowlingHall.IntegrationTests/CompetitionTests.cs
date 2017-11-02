@@ -18,8 +18,10 @@ namespace CorneliasBowlingHall.IntegrationTests
 
         public CompetitionTests()
         {
+            var randomDatabaseName = Guid.NewGuid();
+
             var optionBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=CorneliasBowlinghall;Trusted_Connection=True;");
+            optionBuilder.UseSqlServer($"Server=(localdb)\\MSSQLLocalDB;Database={randomDatabaseName};Trusted_Connection=True;");
             _context = new ApplicationDbContext(optionBuilder.Options);
 
             _bowlingRepository = new BowlingRepository(_context);
@@ -27,7 +29,7 @@ namespace CorneliasBowlingHall.IntegrationTests
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
 
-            CompetitionFaker.GenerateFakeCompetitions(_bowlingRepository);       
+            CompetitionFaker.GenerateFakeCompetitions(_bowlingRepository);
         }
 
         [Fact]

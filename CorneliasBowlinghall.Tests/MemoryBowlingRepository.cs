@@ -45,7 +45,7 @@ namespace CorneliasBowlinghall.Tests
 
             if (existingCompetition != null)
             {
-                _competitions.Remove(existingCompetition);                
+                _competitions.Remove(existingCompetition);
             }
             
             _competitions.Add(competition);
@@ -84,23 +84,34 @@ namespace CorneliasBowlinghall.Tests
                 p.LegalId.Contains(lowerInvariantSearchTerm)).ToList();
         }
 
-        public void CreateMatch(Competition competition, List<Party> players, int laneId)
+        public void CreateMatch(Competition competition, List<Party> players, int laneNumber)
         {
-            var lane = _lanes.FirstOrDefault(l => l.Id == laneId);
+            var lane = _lanes.FirstOrDefault(l => l.LaneNo == laneNumber);
 
-            var matchNo = competition.Matches.Count + 1;
+            var matchNo = _matches.Where(m => m.Competition == competition).Count() + 1;
 
             var match = BowlingFactory.CreateMatch(competition, players, lane, matchNo);
             _matches.Add(match);
+            _competitions.FirstOrDefault(c => c.Id == competition.Id).Matches.Add(match);
         }
 
-        public List<Match> FindMatch(Guid competitionId, int matchNo)
+        public Match FindMatch(Competition competition, int matchNo)
         {
-            return _matches.Where(m => m.Competition.Id.Equals(competitionId) && m.MatchNo == matchNo).ToList();
+            return _matches.FirstOrDefault(m => m.Competition.Id.Equals(competition.Id) && m.MatchNo == matchNo);
         }
 
         public void AddScore(Match match, Party player, int score)
         {
+            if (match.Series == null || match.Competition == null || match.Lane == null || match.MatchNo == 0)
+            {
+                throw new Exception("Match is missing data.");
+            }
+
+            if (player.Name == null || player.LegalId == null)
+            {
+                throw new Exception("Player is missing data.");
+            }
+
             var availablePlayerSeries = match.Series.Where(s =>
                 s.Player == player &&
                 s.Score == null 
@@ -117,9 +128,43 @@ namespace CorneliasBowlinghall.Tests
             }
         }
 
-        public Party GetWinnerOfTheYear(int year)
+        public List<Party> GetWinnersOfTheYear(int year)
         {
-            throw new NotImplementedException();
+            var competitions = _competitions.Where(c => c.StartDate.Year == year);
+
+            var playersMatchesWon = new Dictionary<Party, int>();
+
+            foreach (var competition in competitions)
+            {
+                var matchWinners = competition.Matches.Select(m => m.Winner);
+
+                foreach (var winner in matchWinners)
+                {
+                    var existingPlayer = playersMatchesWon.FirstOrDefault(p => p.Key == winner).Key;
+
+                    if (existingPlayer == null)
+                    {
+                        playersMatchesWon.Add(winner, 1);
+                    }
+                    else
+                    {
+                        playersMatchesWon[existingPlayer] += 1;
+                    }
+                }
+            }
+            var competitionWinners = new List<Party>();
+
+            var matchesWonMax = playersMatchesWon.Values.Max();
+
+            foreach (var playerMatch in playersMatchesWon)
+            {
+                if (playerMatch.Value == matchesWonMax)
+                {
+                    competitionWinners.Add(playerMatch.Key);
+                }
+            }
+
+            return competitionWinners;
         }
     }
 }

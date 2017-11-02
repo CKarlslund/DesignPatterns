@@ -8,17 +8,28 @@ namespace CorneliasBowlinghall.System
 {
     public class BowlingSystem
     {
-        private IBowlingRepository _bowlingRepository;
+        private static IBowlingRepository _bowlingRepository;
 
-        public BowlingSystem(IBowlingRepository bowlingRepository)
+        private static BowlingSystem _instance;
+
+        protected BowlingSystem(IBowlingRepository bowlingRepository)
         {
             _bowlingRepository = bowlingRepository;
         }
 
-
-        public Party GetWinnerOfTheYear(int year)
+        public static BowlingSystem Instance
         {
-            return _bowlingRepository.GetWinnerOfTheYear(year);
+            get
+            {
+                if (_instance == null)
+                    _instance = new BowlingSystem(_bowlingRepository);
+                return _instance;
+            }
+        }
+
+        public List<Party> GetWinnersOfTheYear(int year)
+        {
+            return _bowlingRepository.GetWinnersOfTheYear(year);
         }
 
         public void CreateParty(string name, string legalId)
@@ -51,9 +62,9 @@ namespace CorneliasBowlinghall.System
             _bowlingRepository.CreateCompetition(competitionName, competitionId, startDate, endDate);
         }
 
-        public List<Match> FindMatch(Guid competitionId, int matchNo)
+        public Match FindMatch(Competition competition, int matchNo)
         {
-            return _bowlingRepository.FindMatch(competitionId, matchNo);
+            return _bowlingRepository.FindMatch(competition, matchNo);
         }
 
         public void CreateMatch(Competition competition, List<Party> players, int laneid)

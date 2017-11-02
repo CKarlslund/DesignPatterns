@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using AccountabilityLib;
 using Bowling.Models;
-using CorneliasBowlinghall;
 using CorneliasBowlinghall.Interfaces;
 using CorneliasBowlinghall.System;
 using System.Linq;
-using System.Data.Entity.Migrations;
 
 
 namespace CorneliasBowlinghall.EFDatabase
@@ -55,20 +52,20 @@ namespace CorneliasBowlinghall.EFDatabase
             return results ?? new List<Competition>();
         }
 
-        public void CreateMatch(Competition competition, List<Party> players, int laneId)
+        public void CreateMatch(Competition competition, List<Party> players, int laneNumber)
         {
-            var lane = _context.Lanes.FirstOrDefault(l => l.Id == laneId);
+            var lane = _context.Lanes.FirstOrDefault(l => l.LaneNo == laneNumber);
 
             var matchNo = competition.Matches.Count + 1;
             
             var match = BowlingFactory.CreateMatch(competition, players, lane, matchNo);
-            _context.Add(match);
+            _context.Competitions.FirstOrDefault(c => c.Id == competition.Id).Matches.Add(match);
             _context.SaveChanges();
         }
 
-        public List<Match> FindMatch(Guid competitionId, int matchNo)
+        public Match FindMatch(Competition competition, int matchNo)
         {
-            return _context.Matches.Where(m => m.Competition.Id.Equals(competitionId) && m.MatchNo == matchNo).ToList();           
+            return _context.Matches.FirstOrDefault(m => m.Competition.Id.Equals(competition.Id) && m.MatchNo == matchNo);           
         }
 
         public void CreateLane(string name)
@@ -98,6 +95,16 @@ namespace CorneliasBowlinghall.EFDatabase
 
         public void AddScore(Match match, Party player, int score)
         {
+            if (match.Series == null || match.Competition == null || match.Lane == null || match.MatchNo == 0)
+            {
+                throw new Exception("Match is missing data.");
+            }
+
+            if (player.Name == null || player.LegalId == null)
+            {
+                throw new Exception("Player is missing data.");
+            }
+
             var availablePlayerSeries = match.Series.Where(s => 
                                                         s.Player == player && 
                                                         s.Score == null 
@@ -116,31 +123,45 @@ namespace CorneliasBowlinghall.EFDatabase
             }
         }
 
-        public Party GetWinnerOfTheYear(int year)
+        public List<Party> GetWinnersOfTheYear(int year)
         {
             var competitions = _context.Competitions.Where(c => c.StartDate.Year == year);
 
-            var players = new Dictionary<Party, int>();
+            var playersMatchesWon = new Dictionary<Party, int>();
 
             foreach (var competition in competitions)
             {
-                var winners = competition.Matches.Select(m => m.Winner);
-               
-                foreach (var winner in winners)
+                var matchWinners = competition.Matches.Select(m => m.Winner);
+
+                foreach (var winner in matchWinners)
                 {
-                    var existingPlayer = players.FirstOrDefault(p => p.Key == winner).Key;
+                    var existingPlayer = playersMatchesWon.FirstOrDefault(p => p.Key == winner).Key;
 
                     if (existingPlayer == null)
                     {
-                        players.Add(winner,1);
+                        playersMatchesWon.Add(winner, 1);
                     }
                     else
                     {
-                        players[existingPlayer] += 1;
+                        playersMatchesWon[existingPlayer] += 1;
                     }
                 }
+
+                //Andel spelade matcher per spelare /antalet vunna matcher per spelare
             }
-            return players.Keys.Max();
+            var competitionWinners = new List<Party>();
+
+            var matchesWonMax = playersMatchesWon.Values.Max();
+
+            foreach (var playerMatch in playersMatchesWon)
+            {
+                if (playerMatch.Value == matchesWonMax)
+                {
+                    competitionWinners.Add(playerMatch.Key);
+                }
+            }
+
+            return competitionWinners;
         }
     }
 }
